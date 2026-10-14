@@ -20,7 +20,6 @@ No `npm install`, no build tooling. Open `index.html` directly in a browser, or 
 | `index.html` | The entire site — markup, styles, and scripts in one file |
 | `Sharath_BB_Resume.pdf` | Linked from the "Resume" / "Download Resume" buttons (must stay next to `index.html`, same filename) |
 | `README.md` | This file |
-| `.claude/launch.json` | Optional dev-server config for previewing in Claude Code |
 
 ## Structure of `index.html`
 
