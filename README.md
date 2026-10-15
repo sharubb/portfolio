@@ -25,7 +25,7 @@ No `npm install`, no build tooling. Open `index.html` directly in a browser, or 
 
 1. `<head>` — meta, fonts, Tailwind CDN + config, the Three.js import map, then a `<style>` block with the **design token system** and component classes (`.card`, `.chip`, `.btn-primary`, `.display`, etc.)
 2. `<body>` — preloader → progress bar → backdrop (aurora blobs, film grain) → floating nav → `<main>` with hero (headline + typing terminal) → skills marquee → about → experience (timeline) → skills matrix → key impact → contact → footer
-3. One classic `<script>` — all UI and animation: theme toggle, mobile menu, anchor scrolling, nav highlighting, mailto form, hero terminal typewriter, GSAP/ScrollTrigger/Lenis setup
+3. One classic `<script>` — all UI and animation: theme toggle, mobile menu, anchor scrolling, nav highlighting, contact form (emails via FormSubmit), hero terminal typewriter, GSAP/ScrollTrigger/Lenis setup
 
 ## Hero Terminal
 
@@ -95,3 +95,9 @@ Fully static — any static host works:
 ## Browser Support
 
 Uses modern CSS (custom properties, `backdrop-filter`, `color-mix()`, CSS Grid) and `async/await`. Works in current Chrome, Edge, Firefox, and Safari. `backdrop-filter` and the View Transitions theme wipe degrade gracefully on older browsers.
+
+## Contact Form
+
+The form posts to [FormSubmit](https://formsubmit.co) (`FORM_ENDPOINT` in the script), which emails each submission to the address in that URL. No server or API key is needed. Spam is limited with a hidden honeypot field. If sending fails, the page shows a direct `mailto:` link instead.
+
+**One-time activation:** the first real submission makes FormSubmit email a confirmation link to that address. Click it once and all later messages arrive normally. After activating, FormSubmit also gives you a random-string endpoint you can swap into `FORM_ENDPOINT` so your email address isn't in the URL.

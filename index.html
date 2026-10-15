@@ -43,6 +43,7 @@
     --accent-soft: rgba(196,18,31,0.09);
     --accent-soft-strong: rgba(196,18,31,0.20);
     --accent-contrast: #ffffff;
+    --ok: #12804a;
     --glow: 0 12px 30px -10px rgba(196,18,31,0.38);
     --glow-lg: 0 24px 60px -12px rgba(196,18,31,0.45);
     --blob-gold: rgba(224,36,43,0.20);
@@ -66,6 +67,7 @@
     --accent-soft: rgba(255,69,82,0.11);
     --accent-soft-strong: rgba(255,69,82,0.26);
     --accent-contrast: #ffffff;
+    --ok: #3ddc97;
     --glow: 0 12px 34px -8px rgba(255,59,71,0.40);
     --glow-lg: 0 26px 70px -10px rgba(255,59,71,0.50);
     --blob-gold: rgba(255,45,60,0.17);
@@ -241,6 +243,30 @@
   input::placeholder, textarea::placeholder{ color: var(--text-faint); }
   input:focus, textarea:focus{ outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
 
+  /* contact form result states */
+  #formFields.is-away{ visibility: hidden; }
+  #formResult{ position: absolute; inset: 0; display: none; align-items: center; justify-content: center; text-align: center; padding: 2rem; outline: none; }
+  #formResult.on{ display: flex; }
+  .fr-state{ display: none; flex-direction: column; align-items: center; width: 100%; }
+  .fr-state.on{ display: flex; }
+  .fr-spin{ position: relative; width: 92px; height: 92px; display: grid; place-items: center; color: var(--accent); }
+  .fr-spin::before{ content: ''; position: absolute; inset: 0; border-radius: 9999px; border: 2px solid var(--surface-border-strong); border-top-color: var(--accent); border-right-color: var(--accent); animation: frSpin 1s linear infinite; }
+  .fr-plane{ animation: frBob 1.3s ease-in-out infinite; }
+  @keyframes frSpin{ to{ transform: rotate(360deg); } }
+  @keyframes frBob{ 0%,100%{ transform: translate(-2px, 2px); } 50%{ transform: translate(3px, -3px); } }
+  .fr-icon{ position: relative; width: 96px; height: 96px; color: var(--ok); }
+  .fr-icon.bad{ color: var(--accent); }
+  .fr-icon svg{ width: 100%; height: 100%; filter: drop-shadow(0 0 14px currentColor); }
+  .fr-icon::after{ content: ''; position: absolute; inset: 0; border-radius: 9999px; border: 2px solid currentColor; opacity: 0; animation: frPulse 2.4s ease-out 1.1s infinite; pointer-events: none; }
+  @keyframes frPulse{ 0%{ transform: scale(1); opacity: .5; } 100%{ transform: scale(1.8); opacity: 0; } }
+  .fr-disc{ fill: currentColor; fill-opacity: .12; transform-box: fill-box; transform-origin: center; }
+  .fr-circle, .fr-mark{ fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 0; }
+  .fr-circle{ stroke-width: 3; }
+  .fr-mark{ stroke-width: 5.5; }
+  .fr-title{ font-size: clamp(2rem, 4.6vw, 3.1rem); line-height: 1.05; margin: 1.5rem 0 .9rem; color: var(--text); }
+  .fr-state[data-state="success"] .fr-title em{ color: var(--ok); }
+  .fr-spark{ position: absolute; left: 50%; top: 50%; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: 9999px; pointer-events: none; }
+
   /* footer mega text */
   .mega{ font-size: clamp(5rem, 21vw, 21rem); line-height: .8; color: transparent; -webkit-text-stroke: 1px var(--mega-stroke); white-space: nowrap; user-select: none; letter-spacing: -0.03em; }
 
@@ -264,7 +290,7 @@
   @keyframes loaderFailsafe{ to{ opacity: 0; visibility: hidden; } }
 
   @media (prefers-reduced-motion: reduce){
-    .float-slow, .pulse-ring, .scroll-line, .marquee-track, .t-cur{ animation: none !important; }
+    .float-slow, .pulse-ring, .scroll-line, .marquee-track, .t-cur, .fr-plane, .fr-icon::after{ animation: none !important; }
     #loader{ display: none; }
   }
 </style>
@@ -732,32 +758,74 @@
       </div>
 
       <form id="contactForm" class="lg:col-span-3 rv card accent-bar rounded-3xl p-8 sm:p-10" data-spot>
-        <div class="grid sm:grid-cols-2 gap-5">
-          <div class="sm:col-span-1">
-            <label for="f-name" class="block text-xs uppercase tracking-wide t-faint mb-2">Your Name</label>
-            <input id="f-name" required type="text" name="name" placeholder="Jane Doe" class="w-full rounded-xl px-4 py-3.5 text-sm transition-all">
+        <div id="formFields">
+          <div class="grid sm:grid-cols-2 gap-5">
+            <div class="sm:col-span-1 fx">
+              <label for="f-name" class="block text-xs uppercase tracking-wide t-faint mb-2">Your Name</label>
+              <input id="f-name" required type="text" name="name" placeholder="Jane Doe" class="w-full rounded-xl px-4 py-3.5 text-sm transition-all">
+            </div>
+            <div class="sm:col-span-1 fx">
+              <label for="f-email" class="block text-xs uppercase tracking-wide t-faint mb-2">Your Email</label>
+              <input id="f-email" required type="email" name="email" placeholder="jane@company.com" class="w-full rounded-xl px-4 py-3.5 text-sm transition-all">
+            </div>
+            <div class="sm:col-span-2 fx">
+              <label for="f-subject" class="block text-xs uppercase tracking-wide t-faint mb-2">Subject</label>
+              <input id="f-subject" type="text" name="subject" placeholder="Role / opportunity you're reaching out about" class="w-full rounded-xl px-4 py-3.5 text-sm transition-all">
+            </div>
+            <div class="sm:col-span-2 fx">
+              <label for="f-message" class="block text-xs uppercase tracking-wide t-faint mb-2">Message</label>
+              <textarea id="f-message" required name="message" rows="5" placeholder="Tell me a bit about the opportunity..." class="w-full rounded-xl px-4 py-3.5 text-sm transition-all resize-none"></textarea>
+            </div>
           </div>
-          <div class="sm:col-span-1">
-            <label for="f-email" class="block text-xs uppercase tracking-wide t-faint mb-2">Your Email</label>
-            <input id="f-email" required type="email" name="email" placeholder="jane@company.com" class="w-full rounded-xl px-4 py-3.5 text-sm transition-all">
+          <input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute; left:-9999px; width:1px; height:1px; opacity:0;">
+          <div class="mt-7 flex items-center gap-4 flex-wrap fx">
+            <button type="submit" class="inline-flex items-center gap-2 rounded-full btn-primary font-bold px-7 py-4" data-magnetic>
+              Send Message
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
           </div>
-          <div class="sm:col-span-2">
-            <label for="f-subject" class="block text-xs uppercase tracking-wide t-faint mb-2">Subject</label>
-            <input id="f-subject" type="text" name="subject" placeholder="Role / opportunity you're reaching out about" class="w-full rounded-xl px-4 py-3.5 text-sm transition-all">
+          <p class="mt-4 text-xs t-faint fx">Your message is delivered straight to Sharath's inbox.</p>
+        </div>
+
+        <div id="formResult" role="status" aria-live="polite" tabindex="-1">
+          <!-- sending -->
+          <div class="fr-state" data-state="sending">
+            <div class="fr-spin">
+              <svg class="fr-plane w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </div>
+            <p class="display text-3xl mt-7 t-main">Sending<em>…</em></p>
+            <p class="text-sm t-dim mt-2">Delivering your message to Sharath's inbox</p>
           </div>
-          <div class="sm:col-span-2">
-            <label for="f-message" class="block text-xs uppercase tracking-wide t-faint mb-2">Message</label>
-            <textarea id="f-message" required name="message" rows="5" placeholder="Tell me a bit about the opportunity..." class="w-full rounded-xl px-4 py-3.5 text-sm transition-all resize-none"></textarea>
+
+          <!-- success -->
+          <div class="fr-state" data-state="success">
+            <div class="fr-icon ok">
+              <svg viewBox="0 0 100 100" class="overflow-visible" aria-hidden="true">
+                <circle class="fr-disc" cx="50" cy="50" r="44"/>
+                <circle class="fr-circle" cx="50" cy="50" r="44" pathLength="1"/>
+                <path class="fr-mark" d="M30 52 L44 66 L71 36" pathLength="1"/>
+              </svg>
+            </div>
+            <h3 class="fr-title display" id="thanksTitle">Thank you!</h3>
+            <p class="fr-fade t-dim leading-relaxed max-w-sm">Your message has landed in my inbox. I'll read it and get back to you soon.</p>
+            <button type="button" data-action="back" class="fr-fade mt-7 inline-flex items-center gap-2 rounded-full btn-ghost font-bold px-6 py-3">Send another message</button>
+          </div>
+
+          <!-- error -->
+          <div class="fr-state" data-state="error">
+            <div class="fr-icon bad">
+              <svg viewBox="0 0 100 100" class="overflow-visible" aria-hidden="true">
+                <circle class="fr-disc" cx="50" cy="50" r="44"/>
+                <circle class="fr-circle" cx="50" cy="50" r="44" pathLength="1"/>
+                <path class="fr-mark" d="M36 36 L64 64"  pathLength="1"/>
+                <path class="fr-mark" d="M64 36 L36 64"  pathLength="1"/>
+              </svg>
+            </div>
+            <h3 class="fr-title display" id="errorTitle">Something went wrong.</h3>
+            <p class="fr-fade t-dim leading-relaxed max-w-sm">Your message couldn't be sent. Nothing was lost &mdash; try again, or email me directly at <a class="underline t-accent" href="mailto:sharath.bennurmath@gmail.com">sharath.bennurmath@gmail.com</a>.</p>
+            <button type="button" data-action="back" class="fr-fade mt-7 inline-flex items-center gap-2 rounded-full btn-primary font-bold px-6 py-3">Try again</button>
           </div>
         </div>
-        <div class="mt-7 flex items-center gap-4 flex-wrap">
-          <button type="submit" class="inline-flex items-center gap-2 rounded-full btn-primary font-bold px-7 py-4" data-magnetic>
-            Send Message
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-          </button>
-          <span id="formStatus" class="text-sm t-accent" role="status"></span>
-        </div>
-        <p class="mt-4 text-xs t-faint">Submitting opens your email client with this message addressed to Sharath.</p>
       </form>
     </div>
   </div>
@@ -992,23 +1060,141 @@
     play();
   }
 
-  /* ---------- CONTACT FORM -> mailto ---------- */
+  /* ---------- CONTACT FORM -> emailed to Sharath via FormSubmit ---------- */
+  var FORM_ENDPOINT = 'https://formsubmit.co/ajax/sharath.bennurmath@gmail.com';
   var contactForm = document.getElementById('contactForm');
-  var formStatus = document.getElementById('formStatus');
+  var formFields = document.getElementById('formFields');
+  var formResult = document.getElementById('formResult');
+  var sendBtn = contactForm.querySelector('button[type="submit"]');
+  var fxTargets = formFields.querySelectorAll('.fx');
+  var stateEls = {};
+  formResult.querySelectorAll('[data-state]').forEach(function(el){ stateEls[el.getAttribute('data-state')] = el; });
+  var formBusy = false;
+
+  function sleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+  function setState(name){
+    Object.keys(stateEls).forEach(function(k){ stateEls[k].classList.toggle('on', k === name); });
+    formResult.classList.toggle('on', !!name);
+  }
+  function enter(el, delay){
+    if (!animate) return;
+    gsap.fromTo(el, { opacity: 0, scale: 0.86 }, { opacity: 1, scale: 1, duration: 0.55, ease: 'back.out(1.5)', delay: delay || 0, overwrite: 'auto' });
+  }
+
+  function hideFields(){
+    if (!animate) { formFields.classList.add('is-away'); return Promise.resolve(); }
+    return new Promise(function(res){
+      gsap.to(fxTargets, { opacity: 0, y: -22, scale: 0.97, duration: 0.42, stagger: 0.06, ease: 'power2.in',
+        onComplete: function(){ formFields.classList.add('is-away'); res(); } });
+    });
+  }
+  function showFields(){
+    formFields.classList.remove('is-away');
+    if (!animate) return;
+    gsap.fromTo(fxTargets, { opacity: 0, y: 26, scale: 0.98 }, { opacity: 1, y: 0, scale: 1, duration: 0.65, stagger: 0.08, ease: 'power3.out', clearProps: 'transform' });
+  }
+  function swapState(name){
+    var cur = formResult.querySelector('.fr-state.on');
+    return new Promise(function(res){
+      function go(){ setState(name); res(stateEls[name]); }
+      if (!animate || !cur) { go(); return; }
+      gsap.to(cur, { opacity: 0, scale: 1.12, duration: 0.32, ease: 'power2.in', onComplete: go });
+    });
+  }
+  function buildTitle(el, parts){
+    el.textContent = '';
+    parts.forEach(function(p){
+      if (p.em) { var e = document.createElement('em'); e.textContent = p.t; el.appendChild(e); }
+      else el.appendChild(document.createTextNode(p.t));
+    });
+    if (animate) splitNode(el, 'w', 'wi');
+  }
+  function burst(host){
+    var colors = ['var(--ok)', '#ffffff', 'var(--accent-tint)'];
+    for (var i = 0; i < 18; i++) {
+      var s = document.createElement('i');
+      s.className = 'fr-spark';
+      s.style.background = colors[i % 3];
+      host.appendChild(s);
+      var ang = (i / 18) * Math.PI * 2 + Math.random() * 0.4;
+      var dist = 70 + Math.random() * 70;
+      gsap.fromTo(s, { x: 0, y: 0, scale: 1, opacity: 1 },
+        { x: Math.cos(ang) * dist, y: Math.sin(ang) * dist, scale: 0, opacity: 0, duration: 0.9 + Math.random() * 0.6, ease: 'power3.out',
+          onComplete: (function(n){ return function(){ n.remove(); }; })(s) });
+    }
+  }
+  function playResult(el, kind){
+    if (!animate) return;
+    var icon = el.querySelector('.fr-icon');
+    var tl = gsap.timeline();
+    gsap.set(el, { opacity: 1, scale: 1 });
+    tl.fromTo(el.querySelector('.fr-disc'), { scale: 0.3, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.8, ease: 'elastic.out(1,0.55)' }, 0)
+      .fromTo(el.querySelector('.fr-circle'), { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.75, ease: 'power2.inOut' }, 0)
+      .fromTo(el.querySelectorAll('.fr-mark'), { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.5, stagger: 0.12, ease: 'power2.out' }, 0.6)
+      .fromTo(el.querySelectorAll('.fr-title .wi'), { yPercent: 118 }, { yPercent: 0, duration: 0.95, stagger: 0.07, ease: 'power4.out' }, 0.7)
+      .fromTo(el.querySelectorAll('.fr-fade'), { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.75, stagger: 0.12, ease: 'power3.out' }, 1.0);
+    if (kind === 'success') tl.add(function(){ burst(icon); }, 0.7);
+    else tl.to(icon, { keyframes: { x: [0, -12, 12, -9, 9, -4, 4, 0] }, duration: 0.7, ease: 'power1.inOut' }, 0.75);
+  }
+
+  function showSuccess(firstName){
+    buildTitle(document.getElementById('thanksTitle'),
+      [{ t: 'Thank ' }, { t: 'you', em: true }, { t: ', ' + firstName + '!' }]);
+    return swapState('success').then(function(el){ playResult(el, 'success'); });
+  }
+  var errorTitleBuilt = false;
+  function showError(){
+    if (!errorTitleBuilt) {
+      buildTitle(document.getElementById('errorTitle'), [{ t: 'Something ' }, { t: 'went wrong.', em: true }]);
+      errorTitleBuilt = true;
+    }
+    return swapState('error').then(function(el){ playResult(el, 'error'); });
+  }
+  function backToForm(){
+    var cur = formResult.querySelector('.fr-state.on');
+    function done(){
+      setState(null);
+      showFields();
+      var first = contactForm.querySelector('input[name="name"]');
+      if (first) first.focus({ preventScroll: true });
+    }
+    if (!animate || !cur) { done(); return; }
+    gsap.to(cur, { opacity: 0, scale: 0.92, duration: 0.35, ease: 'power2.in', onComplete: done });
+  }
+  formResult.querySelectorAll('[data-action="back"]').forEach(function(b){ b.addEventListener('click', backToForm); });
+
   contactForm.addEventListener('submit', function(e){
     e.preventDefault();
+    if (formBusy) return;
     var data = new FormData(contactForm);
+    if (data.get('_honey')) { contactForm.reset(); return; }
     var name = (data.get('name') || '').toString().trim();
     var email = (data.get('email') || '').toString().trim();
     var subjectField = (data.get('subject') || '').toString().trim();
     var message = (data.get('message') || '').toString().trim();
     var subject = subjectField ? subjectField : 'Portfolio inquiry from ' + name;
-    var body = 'Name: ' + name + '\nEmail: ' + email + '\n\n' + message;
-    window.location.href = 'mailto:sharath.bennurmath@gmail.com'
-      + '?subject=' + encodeURIComponent(subject)
-      + '&body=' + encodeURIComponent(body);
-    formStatus.textContent = 'Opening your email client…';
-    setTimeout(function(){ formStatus.textContent = ''; }, 4000);
+    var firstName = name.split(/\s+/)[0] || 'there';
+    formBusy = true;
+
+    var request = fetch(FORM_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        name: name, email: email, subject: subjectField || '(none)', message: message,
+        _subject: 'Portfolio: ' + subject, _template: 'table', _captcha: 'false'
+      })
+    })
+    .then(function(res){ return res.json().then(function(j){ return res.ok && (j.success === true || j.success === 'true'); }); })
+    .catch(function(){ return false; });
+
+    hideFields()
+      .then(function(){ return swapState('sending'); })
+      .then(function(el){ enter(el); return Promise.all([request, sleep(1300)]); })
+      .then(function(r){
+        if (r[0]) { contactForm.reset(); return showSuccess(firstName); }
+        return showError();
+      })
+      .then(function(){ formBusy = false; });
   });
 
   /* ---------- CARD SPOTLIGHT (CSS vars; works without GSAP) ---------- */
